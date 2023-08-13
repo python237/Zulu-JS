@@ -1,15 +1,8 @@
-/*!
-* Copyright (c) 2020-present, Comparo Group. All rights reserved.
-* Zulu JavaScript Library v1.0.0 - Permission Tools
-*
-* Copyright Comparo Group and other contributors
-* Released under the MIT license
-*
-* @author Didier Tagne
-* @mail tagnedidier@gmail.com
+/**
+** Code to manage actions requiring permissions, i.e. location, notification, camera, etc.
+**
+** @version 1.0.1
 */
-
-
 ;(function (fn, context) {
     'use strict';
 
@@ -17,7 +10,7 @@
         throw new Error("Zulu Toolkit requires");
 
     // Check version
-    if (!fn.factory.requires('1.0.0')) throw new Error("zulu ajax extension requires V1.0.0");
+    if (!fn.factory.requires('1.0.1')) throw new Error("zulu ajax extension requires V1.0.1");
 
     function Location(successCallback, failedCallback) {
         this.oldBrowserState = 0;
@@ -26,7 +19,7 @@
         this.timeoutState = 3;
         this.unknownErrorState = 4;
 
-        const $this = this;
+        var $this = this;
 
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -35,7 +28,7 @@
                     successCallback(position.coords.latitude, position.coords.longitude);
                 },
                 function (positionError) {
-                    let state;
+                    var state;
 
                     switch(positionError.code) {
                         case positionError.PERMISSION_DENIED:
@@ -54,7 +47,6 @@
                             state = $this.unknownErrorState;
                           break;
                     }
-
                     if (typeof failedCallback === 'function') failedCallback(state);
                 }
             )
@@ -98,7 +90,7 @@
             if (this.isOldBrowser) {
                 return false;
             }
-            else if (this.isGranted) {
+            else if (Notification.permission === 'granted') {
                 // Permission is grant
                 return true;
             }
@@ -150,7 +142,7 @@
             this.setOptions(options);
 
             if (this.isOldBrowser) this.oldBrowserCallback();
-            else if (!this.isGranted) this.permissionDeniedCallback();
+            else if (!this.init()) this.permissionDeniedCallback();
             else {
                 new Notification(this.title, {
                     'body': this.body,

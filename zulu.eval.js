@@ -1,14 +1,9 @@
-/*!
-* Copyright (c) 2020-present, Comparo Group. All rights reserved.
-* Zulu JavaScript Library v1.0.0 - Node Eval Tools
-*
-* Copyright Comparo Group and other contributors
-* Released under the MIT license
-*
-* @author Didier Tagne
-* @mail tagnedidier@gmail.com
+/**
+** Code for managing evaluations and checking data in forms. In particular,
+** check if a number is valid, if an e-mail is valid, etc.
+**
+** @version 1.0.1
 */
-
 ;(function(document, fn) {
     "use strict";
 
@@ -16,12 +11,12 @@
         throw new Error("Zulu Toolkit requires");
 
     // Check Version
-    if (!fn.factory.requires('1.0.0')) throw new Error("zulu eval extension requires V1.0.0");
+    if (!fn.factory.requires('1.0.1')) throw new Error("Zulu eval extension requires V1.0.1");
 
-    const context = fn.factory.modules;
-    const unicode = 'éèçàöùôœïüëêâäæß´`ŀð€þÿûî?$';  // Unicode
-    const digits = '0123456789';  // Digits
-    const alpha = '@`!@#%^&*()_-+={}[];:,<.>/\\’‘»«≤©¿÷¡ø';  // Alpha
+    var context = fn.factory.modules;
+    var unicode = 'éèçàöùôœïüëêâäæß´`ŀð€þÿûî?$';  // Unicode
+    var digits = '0123456789';  // Digits
+    var alpha = '@`!@#%^&*()_-+={}[];:,<.>/\\’‘»«≤©¿÷¡ø';  // Alpha
 
     /**
      * @param {Object} dict
@@ -30,7 +25,7 @@
     function zEval(dict) {
         "use strict";
 
-        const defaultConfig = {
+        var defaultConfig = {
             min_length: !(typeof dict.min_length === 'undefined') ? dict.min_length : 0,
             max_length: !(typeof dict.max_length === 'undefined') ? dict.max_length : 3000000,
             unicode: !(typeof dict.unicode === 'undefined') ? dict.unicode : true,
@@ -44,7 +39,7 @@
             startswith: !(typeof dict.startswith === 'undefined') ? dict.startswith : [],
             _null: !(typeof dict._null === 'undefined') ? dict._null : false
         };
-        let string = dict.value;
+        var string = dict.value;
 
         if (typeof string === 'undefined') return undefined;
         else if (!(typeof defaultConfig.min_length === 'undefined')) {
@@ -69,7 +64,7 @@
             else {
                 if (typeof string.valueOf() === 'string') return (new RegExp(regex)).test(string);
                 else {
-                    for (let i=0; i<string.length; i++)
+                    for (var i=0; i<string.length; i++)
                         if ((new RegExp(regex)).test(string[i])) return true;
 
                     return false;
@@ -90,7 +85,8 @@
          * @returns {boolean}
          */
         zEval.prototype.isPhoneNumber = function() {
-            return this.regExp(new RegExp('^\+[0-9]{1,3}[0-9 ]{8,}$')) || this.regExp(new RegExp('^[0]{2}[0-12 ]{8,}$'));
+            return this.regExp(new RegExp('^\+[0-9]{1,3}[0-9 ]{8,}$')) || this.regExp(new RegExp('^[0]{2}[0-9 ]{8,}$'))
+                || this.regExp(new RegExp('^[[0-9 ]{8,}$'));
         };
 
         /**
@@ -100,7 +96,7 @@
         zEval.prototype.execute = function() {
             string = typeof string.valueOf() === 'string' ? [string] : string;
 
-            for(let i=0; i<string.length; i++) {
+            for(var i=0; i<string.length; i++) {
                 if (string[i].length === 0) {
                     if (defaultConfig._null) return true;
                     else continue;
@@ -110,7 +106,7 @@
                 if(string[i].length < defaultConfig.min_length) continue;
                 else if(string[i].length > defaultConfig.max_length) continue;
 
-                let _opposite = [],
+                var _opposite = [],
                     _requires = [],
                     j, has_break;
 
@@ -119,13 +115,13 @@
                 if(!defaultConfig.alpha) for(j = 0; j<alpha.length; j++) _opposite.push(alpha[j]);
                 if (typeof defaultConfig.not_contains.valueOf() === 'string') _opposite.push(defaultConfig.not_contains);
                 else _opposite = _opposite.concat(defaultConfig.not_contains);
-    
+
                 if (typeof defaultConfig.contains.valueOf() === 'string') _requires.push(defaultConfig.contains);
                 else _requires = _requires.concat(defaultConfig.contains);
 
                 if(typeof defaultConfig.not_start.valueOf() === 'string') {
                     if(string[i].startsWith(defaultConfig.not_start)) continue;
-                } 
+                }
                 else {
                     has_break = false;
 
@@ -140,7 +136,7 @@
 
                 if(typeof defaultConfig.not_end.valueOf() === 'string') {
                     if(string[i].endsWith(defaultConfig.not_end)) continue;
-                } 
+                }
                 else {
                     has_break = false;
 
@@ -155,7 +151,7 @@
 
                 if(typeof defaultConfig.endswith.valueOf() === 'string') {
                     if(!string[i].endsWith(defaultConfig.endswith)) continue;
-                } 
+                }
                 else {
                     has_break = false;
 
@@ -170,7 +166,7 @@
 
                 if(typeof defaultConfig.startswith.valueOf() === 'string') {
                     if(!string[i].startsWith(defaultConfig.startswith)) continue;
-                } 
+                }
                 else {
                     has_break = false;
 
@@ -183,7 +179,7 @@
                     if (has_break) continue;
                 }
 
-                let ignore = false;
+                var ignore = false;
 
                 if(_opposite.length > 0) {
                     for(j = 0; j<_opposite.length; j++)
@@ -214,7 +210,7 @@
             return /mobile/i.test(navigator.userAgent);
         };
 
-        zEval.prototype.isTablet = function () {
+        zEval.prototype.isTabvar = function () {
             return /tablet/i.test(navigator.userAgent);
         };
 

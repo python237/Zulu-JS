@@ -1,19 +1,14 @@
-/*!
-* Copyright (c) 2020-present, Comparo Group. All rights reserved.
-* Zulu JavaScript Library v1.0.0
-*
-* Copyright Comparo Group and other contributors
-* Released under the MIT license
-*
-* @author Didier Tagne
-* @mail tagnedidier@gmail.com
+/**
+** Main zulu code, allowing you to select a DOM element,
+** manage and generate events, modify the DOM and much more.
+**
+** @version 1.0.1
 */
-
-(function(document) {
+;(function(document) {
     "use strict";
 
     // Define namespace
-    const DomElement = {
+    var DomElement = {
             /**
              * Remove double selection of node.
              *
@@ -22,19 +17,7 @@
              * @return {Array}
              */
             removeDouble: function (node, array) {
-                // if (typeof node === 'undefined')
-                //     return array;
-                // else {
-                //     var exists = false;
-                //     for (var i = 0; i < array.length; i++)
-                //         if (array[i].isEqualNode(node)) {
-                //             exists = true;
-                //             break;
-                //         }
-                //     if (!exists) array.push(node);
-                //     return array;
-                // }
-                if (typeof node === 'undefined') return array;
+                if (typeof node === 'undefined' || !node) return array;
                 else {
                     array.push(node);
                     return array;
@@ -48,13 +31,13 @@
              * @return {Array}
              */
             removeTag: function (tagList, array) {
-                const node = [];
+                var node = [];
                 tagList = typeof tagList.valueOf() === 'string' ? [tagList] : tagList;
 
-                for (let i = 0; i < array.length; i++) {
-                    let removes = false;
+                for (var i = 0; i < array.length; i++) {
+                    var removes = false;
 
-                    for (let j = 0; j < tagList.length; j++)
+                    for (var j = 0; j < tagList.length; j++)
                         if (array[i].nodeName.toLowerCase() === tagList[j].toLowerCase()) {
                             removes = true;
                             break;
@@ -65,16 +48,16 @@
                 return node;
             },
             extract: function (document, filter) {
-                let containsChild;
-                let filterResult;
-                let finalResult;
-                let j;
-                let result;
-                let i;
+                var containsChild;
+                var filterResult;
+                var finalResult;
+                var j;
+                var result;
+                var i;
 
                 if (filter.length === 0) return [];
 
-                const $ = [
+                var $ = [
                     ':visible',
                     ':hidden',
                     ':text',
@@ -130,7 +113,7 @@
                 if (!(filter.indexOf(',') === -1)) {
                     // Multiple Selection
 
-                    let $result = [];
+                    var $result = [];
                     filter = filter.split(',');
 
                     for (i = 0; i < filter.length; i++) {
@@ -151,12 +134,14 @@
                                     filter = filter.replace($[i], $Definition[$[i]]);
 
                                 else {
-                                    let origin = '';
+                                    var origin = '';
+
                                     for (j = 0; j < $Definition[$[i]].length; j++) {
                                         origin += filter.substring(0, filter.indexOf($[i])) + $Definition[$[i]][j];
                                         origin += filter.substring(filter.indexOf($[i]) + $[i].length, filter.length);
 
-                                        if (j < $Definition[$[i]].length - 1) origin += ',';
+                                        if (j < $Definition[$[i]].length - 1)
+                                            origin += ',';
                                     }
 
                                     filter = filter.replace($[i], origin);
@@ -171,7 +156,7 @@
                         //  Negation Usage
 
                         do {
-                            let negationIndexStart = filter.indexOf('!='),
+                            var negationIndexStart = filter.indexOf('!='),
                                 negationIndexStartWithNot = negationIndexStart,
                                 negationIndexEnd = negationIndexStart,
                                 negationIndexEndWithNot = negationIndexStart,
@@ -211,13 +196,13 @@
                         return this.extract(document, filter);
                     }
                     else if (!(filter.indexOf('!>') === -1)) {
-                        const parentNodeResult = this.extract(document, filter.substring(0, filter.lastIndexOf('!>'))),
+                        var parentNodeResult = this.extract(document, filter.substring(0, filter.lastIndexOf('!>'))),
                             childNodeResult = this.extract(document, filter.substring(filter.lastIndexOf('!>') +
                                 '!>'.length, filter.length));
                         result = [];
 
                         for (i = 0; i < childNodeResult.length; i++) {
-                            let parentInResult = false;
+                            var parentInResult = false;
 
                             for (j = 0; j < parentNodeResult.length; j++)
                                 if (childNodeResult[i].parentNode.isEqualNode(parentNodeResult[j])) {
@@ -231,7 +216,7 @@
                         return result;
                     }
                     else if (!(filter.indexOf(':parent(') === -1)) {
-                        let negationUsage = filter[filter.indexOf(':parent(') - 1] === '(',
+                        var negationUsage = filter[filter.indexOf(':parent(') - 1] === '(',
                             parentName = '',
                             startIndexWithParentName = filter.indexOf(':parent(') + ':parent('.length;
 
@@ -248,7 +233,7 @@
                         return this.extract(document, filter);
                     }
                     else if (!(filter.indexOf(':parent') === -1) || !(filter.indexOf(':empty') === -1)) {
-                        let emptyChild = !(filter.indexOf(':empty') === -1);
+                        var emptyChild = !(filter.indexOf(':empty') === -1);
                         filterResult = undefined;
                         finalResult = [];
 
@@ -277,7 +262,7 @@
                     else if (!(filter.indexOf(':child') === -1)) {
                         // Child Check
 
-                        let indexStart = filter.indexOf(':child'),
+                        var indexStart = filter.indexOf(':child'),
                             indexEnd = indexStart,
                             childNameStartIndex = indexStart,
                             childNameEndIndex = indexStart,
@@ -305,7 +290,7 @@
                         result = this.extract(document, filter);
 
                         for (i = 0; i < result.length; i++) {
-                            let zuluChild = z(result[i]).child(undefined);
+                            var zuluChild = z(result[i]).child(undefined);
                             containsChild = false;
 
                             if (!(typeof zuluChild === 'undefined')) {
@@ -328,10 +313,10 @@
 
                     //////////////////
                     // Query Selection
-                    let theResult = document.querySelectorAll(filter),
+                    var theResult = document.querySelectorAll(filter),
                         final = [];
 
-                    for (let pk = 0; pk < theResult.length; pk++)
+                    for (var pk = 0; pk < theResult.length; pk++)
                         final = this.removeDouble(theResult[pk], final);
 
                     return this.removeTag(['html', 'style', 'script'], final);
@@ -348,11 +333,11 @@
              * @param {Function, Array} callback The function or list functions.
              */
             trigger: function (node, eventName, callback) {
-                const params = this.checkParam(eventName, callback);
+                var params = this.checkParam(eventName, callback);
                 eventName = params['event'];
                 callback = params['callback'];
 
-                for (let i = 0; i < eventName.length; i++)
+                for (var i = 0; i < eventName.length; i++)
                     (function (obj, event, func) {
                         if (obj.addEventListener)
                             // W3C DOM.
@@ -366,7 +351,7 @@
                             });
                         else {
                             // Fallback (DOM 1).
-                            const fallback = obj['on' + event];
+                            var fallback = obj['on' + event];
 
                             obj['on' + event] = function (e) {
                                 if (fallback != null && !(typeof fallback === 'undefined')) fallback(e);
@@ -384,11 +369,11 @@
              * @param {Function, Array} callback The function or list functions.
              */
             bind: function (node, eventName, callback) {
-                const params = this.checkParam(eventName, callback);
+                var params = this.checkParam(eventName, callback);
                 eventName = params['event'];
                 callback = params['callback'];
 
-                for (let i = 0; i < eventName.length; i++)
+                for (var i = 0; i < eventName.length; i++)
                     (function (obj, event, func) {
                         if (obj.addEventListener)
                             // W3C DOM
@@ -398,7 +383,7 @@
                             obj.attachEvent('on' + event, func);
                         else {
                             // Fallback (DOM 1)
-                            const fallback = obj['on' + event];
+                            var fallback = obj['on' + event];
 
                             obj['on' + event] = function (e) {
                                 if (fallback != null && !(typeof fallback === 'undefined')) fallback(e);
@@ -415,11 +400,11 @@
              * @param {Function, Array} callback The function or list functions.
              */
             unbind: function (node, eventName, callback) {
-                const params = this.checkParam(eventName, callback);
+                var params = this.checkParam(eventName, callback);
                 eventName = params['event'];
                 callback = params['callback'];
 
-                for (let i = 0; i < eventName.length; i++)
+                for (var i = 0; i < eventName.length; i++)
                     (function (obj, event, func) {
                         if (obj.removeEventListener)
                             // W3C DOM
@@ -441,7 +426,7 @@
             dispatch: function (node, eventName) {
                 eventName = typeof eventName.valueOf() === 'string' ? [eventName] : eventName;
 
-                for (let i = 0; i < eventName.length; i++)
+                for (var i = 0; i < eventName.length; i++)
                     if (node.dispatchEvent)
                         // W3C
                         node.dispatchEvent((new Event(eventName[i])));
@@ -458,7 +443,7 @@
              * @returns {Object} dictionary
              */
             checkParam: function (eventName, callback) {
-                let i;
+                var i;
 
                 if (typeof eventName.valueOf() === 'string' && typeof callback === 'function') {
                     eventName = [eventName];
@@ -466,7 +451,7 @@
                 }
                 else if (typeof eventName.valueOf() === 'object' && typeof callback === 'object') {
                     if (!(eventName.length === callback.length)) throw new Error('zulu event args error');
-                    let argsError = false;
+                    var argsError = false;
 
                     for (i = 0; i < eventName.length; i++)
                         if (!(typeof eventName[i].valueOf() === 'string') || !(typeof callback[i] === 'function')) {
@@ -477,7 +462,7 @@
                     if (argsError) throw new Error('zulu event args error');
                 }
                 else {
-                    const gotoObj = [],
+                    var gotoObj = [],
                         obj = typeof eventName.valueOf() === 'string' ? callback : eventName,
                         notObj = typeof eventName.valueOf() === 'string' ? eventName : callback;
 
@@ -503,7 +488,7 @@
              * @returns {boolean}
              */
             correctSignal: function (eventName, node, event) {
-                let propagation = {
+                var propagation = {
                         'mouseover': event.relatedTarget || event.fromElement,
                         'mouseout': event.relatedTarget || event.toElement,
                         'mousemove': event.relatedTarget || event.fromElement
@@ -515,7 +500,7 @@
                         relatedTarget = propagation[eventName];
 
                         while (!relatedTarget.isEqualNode(node) && !(relatedTarget.nodeName.toLowerCase() === 'body')
-                                && !relatedTarget.isEqualNode(document))
+                        && !relatedTarget.isEqualNode(document))
                             relatedTarget = relatedTarget.parentNode;
 
                         return !relatedTarget.isEqualNode(node);
@@ -525,7 +510,7 @@
         },
         settingsSpace = {
             type: 'Zulu Object',
-            version: '1.0.0',
+            version: '1.0.1',
             nodeSpace: DomElement,
             eventSpace: eventSpace,
             modules: Zulu,
@@ -538,14 +523,15 @@
              * @returns {boolean}
              */
             requires: function (version) {
-                if (typeof version === 'undefined' || !(typeof version.valueOf() === 'string')) return false;
+                if (typeof version === 'undefined' || !(typeof version.valueOf() === 'string'))
+                    return false;
 
-                const versions = version.split('.');
-                const actualVersion = this.version.split('.');
+                var versions = version.split('.');
+                var actualVersion = this.version.split('.');
 
                 if (!(versions.length === 3)) return false;
 
-                for (let i = 0; i < versions.length; i++) {
+                for (var i = 0; i < versions.length; i++) {
                     versions[i] = parseInt(versions[i]);
                     actualVersion[i] = parseInt(actualVersion[i]);
 
@@ -569,9 +555,9 @@
      */
     function Zulu(factory) {
         this.array = false;
-        this.node  = undefined;
+        this.node  = [];
 
-        const $this = this;
+        var $this = this;
 
         /**
          * Check node object result and affine correctly data.
@@ -579,33 +565,32 @@
          * @param {Array} array The HTML Element selected or Document.
          * @returns {Object, Zulu}
          */
-        const migrate = function (array) {
+        var migrate = function (array) {
             $this.node = DomElement.removeTag(['html', 'style', 'script'], array);
 
-            if ($this.node.length === 0) {
-                $this.node = undefined;
-                $this.array = false;
-
-                return undefined;
-            } else if ($this.node.length === 1) {
+            if ($this.node.length === 1) {
                 $this.node = $this.node[0];
                 $this.array = false;
-            } else $this.array = true;
+            }
+            else $this.array = true;
 
             return $this;
         };
 
-        const eventListener = function (args, event, trigger) {
+        var eventListener = function (args, event, trigger) {
             trigger = typeof trigger === "undefined" ? true : trigger;
-            const array = [];
+            var array = [];
 
-            for (let i = 0; i < args.length; i++) array.push(args[i]);
+            for (var i = 0; i < args.length; i++) array.push(args[i]);
             return trigger ? $this.on(event, array) : $this.bind(event, array);
         };
 
         //! Prototype Usage
 
         Zulu.prototype.valueOf = {};
+        Zulu.prototype.valueOf = function() {
+            return {};
+        };
         Zulu.prototype.isZulu = settingsSpace.type;
 
         /**
@@ -636,7 +621,7 @@
          * @returns {Zulu}
          */
         Zulu.prototype.attrs = function(values) {
-            for (const key in values) {
+            for (var key in values) {
                 this.attr(key, values[key]);
             }
 
@@ -648,10 +633,13 @@
          * @returns {boolean}
          */
         Zulu.prototype.hasAttr = function() {
-            if (this.array) throw new Error("multiple node selected");
-            for (let i=0; i<arguments.length; i++) if (this.node.hasAttribute(arguments[i])) return true;
+            if (this.array) return false;
+            else {
+                for (var i=0; i<arguments.length; i++)
+                    if (this.node.hasAttribute(arguments[i])) return true;
 
-            return false;
+                return false;
+            }
         };
 
         /**
@@ -659,10 +647,11 @@
          * @returns {Zulu}
          */
         Zulu.prototype.removeAttr = function() {
-            const args = arguments;
+            var args = arguments;
+
             this.each(function (node) {
-                for (let j=0; j<args.length; j++) node.removeAttribute(args[j]);
-            })
+                for (var j=0; j<args.length; j++) node.removeAttribute(args[j]);
+            });
 
             return this;
         };
@@ -672,10 +661,13 @@
          * @returns {boolean}
          */
         Zulu.prototype.hasClass = function() {
-            if (this.array) throw new Error("multiple node selected");
-            for (let i=0; i<arguments.length; i++) if (this.node.classList.contains(arguments[i])) return true;
+            if (this.array) return false;
+            else {
+                for (var i=0; i<arguments.length; i++)
+                    if (this.node.classList.contains(arguments[i])) return true;
 
-            return false;
+                return false;
+            }
         };
 
         /**
@@ -683,9 +675,10 @@
          * @returns {Zulu}
          */
         Zulu.prototype.removeClass = function() {
-            const args = arguments;
+            var args = arguments;
+
             this.each(function (node) {
-                for (let j=0; j<args.length; j++) node.classList.remove(args[j]);
+                for (var j=0; j<args.length; j++) node.classList.remove(args[j]);
             });
 
             return this;
@@ -696,9 +689,10 @@
          * @returns {Zulu}
          */
         Zulu.prototype.addClass = function() {
-            const args = arguments;
+            var args = arguments;
+
             this.each(function (node) {
-                for (let j=0; j<args.length; j++) node.classList.add(args[j]);
+                for (var j=0; j<args.length; j++) node.classList.add(args[j]);
             });
 
             return this;
@@ -709,9 +703,10 @@
          * @returns {Zulu}
          */
         Zulu.prototype.toggleClass = function() {
-            const args = arguments;
+            var args = arguments;
+
             this.each(function (node) {
-                for (let j=0; j<args.length; j++)
+                for (var j=0; j<args.length; j++)
                     if (z(node).hasClass(args[j])) z(node).removeClass(args[j]);
                     else z(node).addClass(args[j]);
             });
@@ -724,7 +719,8 @@
          * @returns {string}
          */
         Zulu.prototype.outer = function() {
-            let outer = '';
+            var outer = '';
+
             this.each(function (node) {
                 outer += node.outerHTML;
             });
@@ -737,8 +733,8 @@
          * @returns {String, Zulu}
          */
         Zulu.prototype.inner = function() {
-            let i;
-            let html = '';
+            var i;
+            var html = '';
 
             if (arguments.length === 0) {
                 // Get
@@ -769,9 +765,25 @@
          * @returns {String}
          */
         Zulu.prototype.text = function() {
-            if (this.array) return '';
+            if (this.array) {
+                var text = '';
+
+                this.each(function(node) {
+                    text += ' ' + z(node).text();
+                });
+
+                return text;
+            }
             else return this.node.textContent || this.node.innerText || '';
         };
+
+        /**
+         * Check if array node selected is empty
+         * @returns {boolean}
+         */
+        Zulu.prototype.isEmpty = function() {
+            return !this.array ? true : this.node.length > 0;
+        }
 
         /**
          * Move selection node to parent of node selected.
@@ -780,13 +792,13 @@
          * @returns {Zulu|Object}
          */
         Zulu.prototype.parent = function(allParent) {
-            let newNode = [];
+            var newNode = [];
 
             allParent = !(typeof allParent === "undefined") ? allParent : false;
 
             this.each(function (node) {
-                let parent = node.parentNode;
-
+                var parent = node.parentNode;
+                
                 do {
                     newNode = DomElement.removeDouble(parent, newNode);
                     parent = parent.parentNode;
@@ -804,13 +816,12 @@
          * @returns {Zulu|Object}
          */
         Zulu.prototype.child = function(filter) {
-            let j;
-            let i;
-            let newNode = [];
+            var j;
+            var newNode = [];
 
             if (!(typeof filter === 'undefined')) {
                 this.each(function (node) {
-                    const child = DomElement.extract(node, filter);
+                    var child = DomElement.extract(node, filter);
 
                     for (j = 0; j<child.length; j++) newNode = DomElement.removeDouble(child[j], newNode);
                 });
@@ -842,33 +853,34 @@
          * @returns {Zulu|Object}
          */
         Zulu.prototype.firstChild = function(filter) {
-            let newNode = [];
+            var newNode = [];
 
             if (!(typeof filter === 'undefined')) {
                 this.each(function (node) {
-                    const child = DomElement.extract(node, filter);
+                    var child = DomElement.extract(node, filter);
 
                     if (child.length > 0) newNode = DomElement.removeDouble(child[0], newNode);
                 });
             }
             else {
                 this.each(function (node) {
-                    if (typeof node.childElementCount === 'number')
+                    if (typeof node.childElementCount === 'number') {
                         // W3C
                         if (node.childElementCount > 0)
                             newNode = DomElement.removeDouble(node.firstElementChild, newNode);
-                        else {
-                            // IE < 9
-                            let index = 0;
+                    }
+                    else {
+                        // IE < 9
+                        var index = 0;
 
-                            while (index < node.childNodes.length) {
-                                if (node.childNodes[index].nodeType === 1) {
-                                    newNode = DomElement.removeDouble(node.childNodes[index], newNode);
-                                    break;
-                                }
-                                index++;
+                        while (index < node.childNodes.length) {
+                            if (node.childNodes[index].nodeType === 1) {
+                                newNode = DomElement.removeDouble(node.childNodes[index], newNode);
+                                break;
                             }
+                            index++;
                         }
+                    }
                 });
             }
 
@@ -882,33 +894,34 @@
          * @returns {Zulu|Object}
          */
         Zulu.prototype.lastChild = function(filter) {
-            let newNode = [];
+            var newNode = [];
 
             if (!(typeof filter === 'undefined')) {
                 this.each(function (node) {
-                    const child = DomElement.extract(node, filter);
+                    var child = DomElement.extract(node, filter);
 
                     if (child.length > 0) newNode = DomElement.removeDouble(child[child.length - 1], newNode);
                 });
             }
             else {
                 this.each(function (node) {
-                    if (typeof node.childElementCount === 'number')
+                    if (typeof node.childElementCount === 'number') {
                         // W3C
                         if (node.childElementCount > 0)
                             newNode = DomElement.removeDouble(node.lastElementChild, newNode);
-                        else {
-                            // IE < 9
-                            let index = node.childNodes.length - 1;
+                    }
+                    else {
+                        // IE < 9
+                        var index = node.childNodes.length - 1;
 
-                            while (index >= 0) {
-                                if (node.childNodes[index].nodeType === 1) {
-                                    newNode = DomElement.removeDouble(node.childNodes[index], newNode);
-                                    break;
-                                }
-                                index--;
+                        while (index >= 0) {
+                            if (node.childNodes[index].nodeType === 1) {
+                                newNode = DomElement.removeDouble(node.childNodes[index], newNode);
+                                break;
                             }
+                            index--;
                         }
+                    }
                 });
             }
 
@@ -922,12 +935,12 @@
          * @returns {Zulu|Object}
          */
         Zulu.prototype.nextFriend = function(allFriend) {
-            let newNode = [];
+            var newNode = [];
 
             allFriend = !(typeof allFriend === "undefined") ? allFriend : false;
 
             this.each(function (node) {
-                let friend = node;
+                var friend = node;
 
                 do {
                     if (friend.nextElementSibling) {
@@ -959,12 +972,12 @@
          * @returns {Zulu|Object}
          */
         Zulu.prototype.previousFriend = function(allFriend) {
-            let newNode = [];
+            var newNode = [];
 
             allFriend = !(typeof allFriend === "undefined") ? allFriend : false;
 
             this.each(function (node) {
-                let friend = node;
+                var friend = node;
 
                 do {
                     if (friend.previousElementSibling) {
@@ -996,7 +1009,7 @@
          * @returns {Zulu|Object}
          */
         Zulu.prototype.clone = function(copy) {
-            const cloneNode = [];
+            var cloneNode = [];
 
             copy = !(typeof copy === "undefined") ? copy : true;
 
@@ -1016,24 +1029,26 @@
          * @returns {Object, Zulu}
          */
         Zulu.prototype.replace = function(newNode, _migrate) {
-            const replaceNode = [];
+            var replaceNode = [];
+            var zulu = this.isZulu;
+            var array = this.array;
 
-            if (newNode.isZulu === this.isZulu && newNode.array) throw new Error('zulu object has array node');
+            if (newNode.isZulu === this.isZulu && newNode.array) throw new Error('zulu object contains multiple node');
             _migrate = typeof _migrate === 'undefined' ? true : _migrate;
 
             this.each(function (node) {
                 if (typeof newNode.valueOf() === 'string') node.replaceWith(newNode);
-                else if (newNode.isZulu === this.isZulu) {
+                else if (newNode.isZulu === zulu) {
                     node.replaceWith(newNode.node);
                     replaceNode.push(newNode.node);
 
-                    if (this.array) newNode.node = newNode.node.cloneNode(true);
+                    if (array) newNode = newNode.clone(true);
                 }
                 else {
                     node.replaceWith(newNode);
                     replaceNode.push(newNode);
 
-                    if (this.array) newNode = newNode.cloneNode(true);
+                    if (array) newNode = newNode.cloneNode(true);
                 }
             });
 
@@ -1057,20 +1072,22 @@
          * @returns {Zulu}
          */
         Zulu.prototype.before = function() {
-            for (let i = 0; i<arguments.length; i++) {
-                let friend = arguments[i].isZulu === this.isZulu ? (arguments[i].array ? arguments[i].node : [arguments[i].node]) :
+            var is_array = this.array;
+
+            for (var i = 0; i<arguments.length; i++) {
+                var friend = arguments[i].isZulu === this.isZulu ? (arguments[i].array ? arguments[i].node : [arguments[i].node]) :
                     [arguments[i]];
 
                 this.each(function (node) {
-                    const clone = [];
+                    var clone = [];
 
-                    for (let j=0; j<friend.length; j++) {
-                        let push = !(typeof friend[j].valueOf() === 'string') ? friend[j] : ux.add(friend[j], true);
+                    for (var j=0; j<friend.length; j++) {
+                        var push = !(typeof friend[j].valueOf() === 'string') ? friend[j] : ux.create(friend[j], true);
 
                         if (node.before) node.before(push);
                         else node.parentNode.insertBefore(push, node);
 
-                        if (this.array) clone.push(push.cloneNode(true)); // Clone
+                        if (is_array) clone.push(push.cloneNode(true)); // Clone
                     }
 
                     friend = clone;
@@ -1085,20 +1102,20 @@
          * @returns {Zulu}
          */
         Zulu.prototype.after = function() {
-            for (let i=0; i<arguments.length; i++) {
-                let friend = arguments[i].isZulu === this.isZulu ? (arguments[i].array ? arguments[i].node : [arguments[i].node]) :
+            for (var i=0; i<arguments.length; i++) {
+                var friend = arguments[i].isZulu === this.isZulu ? (arguments[i].array ? arguments[i].node : [arguments[i].node]) :
                     [arguments[i]];
 
                 this.each(function (node) {
-                    const clone = [];
+                    var clone = [];
 
-                    for (let j=0; j<friend.length; j++) {
-                        let push = !(typeof friend[j].valueOf() === 'string') ? friend[j] : ux.add(friend[j], true);
+                    for (var j=0; j<friend.length; j++) {
+                        var push = !(typeof friend[j].valueOf() === 'string') ? friend[j] : ux.create(friend[j], true);
 
                         if (node.after) node.after(push);
                         else {
                             // IE < 9
-                            let child = z(node.parentNode).lastChild();
+                            var child = z(node.parentNode).lastChild();
 
                             if (!(typeof child === 'undefined') && !child.node.isEqualNode(node))
                                 z(node.parentNode).nextFriend().before(push);
@@ -1121,16 +1138,16 @@
          * @returns {Zulu}
          */
         Zulu.prototype.append = function() {
-            const node = this.array ? this.node : [this.node];
+            var node = this.array ? this.node : [this.node];
 
-            for (let i=0; i<arguments.length; i++) {
-                const child = !(arguments[i].isZulu === this.isZulu) ? [arguments[i]] : (arguments[i].array ? arguments[i].node :
+            for (var i=0; i<arguments.length; i++) {
+                var child = !(arguments[i].isZulu === this.isZulu) ? [arguments[i]] : (arguments[i].array ? arguments[i].node :
                     [arguments[i].node]);
 
-                for (let j=0; j<child.length; j++) {
-                    let childInstance = !(typeof child[j].valueOf() === 'string') ? child[j] : ux.add(child[j], undefined);
+                for (var j=0; j<child.length; j++) {
+                    var childInstance = !(typeof child[j].valueOf() === 'string') ? child[j] : ux.create(child[j], undefined);
 
-                    for (let k=0; k<node.length; k++) {
+                    for (var k=0; k<node.length; k++) {
                         node[k].appendChild(childInstance);
                         if (k < node.length - 1) childInstance = childInstance.cloneNode(true);  // Clone
                     }
@@ -1147,7 +1164,7 @@
         Zulu.prototype.insert = function() {
             if (arguments.length < 2) return this;
 
-            const insertionType = arguments[0],
+            var insertionType = arguments[0],
                 node = this.array ? this.node : [this.node],
                 insertionRecognize = {
                     'afterend': 0,
@@ -1158,14 +1175,14 @@
 
             if (!(insertionType in insertionRecognize)) throw new Error("insertion type not recognize");
 
-            for (let i=1; i<arguments.length; i++) {
-                const childOrFriend = arguments[i].isZulu === this.isZulu ? (arguments[i].array ? arguments[i].node :
+            for (var i=1; i<arguments.length; i++) {
+                var childOrFriend = arguments[i].isZulu === this.isZulu ? (arguments[i].array ? arguments[i].node :
                     [arguments[i].node]) : [arguments[i]];
 
-                for (let j=0; j<childOrFriend.length; j++) {
-                    let push = !(typeof childOrFriend[j] === 'string') ? childOrFriend[j] : ux.add(childOrFriend[j], true);
+                for (var j=0; j<childOrFriend.length; j++) {
+                    var push = !(typeof childOrFriend[j] === 'string') ? childOrFriend[j] : ux.create(childOrFriend[j], true);
 
-                    for (let k=0; k<node.length; k++) {
+                    for (var k=0; k<node.length; k++) {
                         node[k].insertAdjacentElement(insertionType, push);
                         if (k < node.length - 1) push = push.cloneNode(true);  // Clone
                     }
@@ -1180,17 +1197,17 @@
          * @returns {Zulu|Object}
          */
         Zulu.prototype.appendTo = function() {
-            let node = this.array ? this.node : [this.node],
+            var node = this.array ? this.node : [this.node],
                 parent = arguments[0],
                 newNode = [];
 
             if (parent.isZulu === this.isZulu) parent = parent.array ? parent.node : [parent.node];
             else parent = [parent];
 
-            for (let i=0; i<node.length; i++) {
-                let appends = node[i];
+            for (var i=0; i<node.length; i++) {
+                var appends = node[i];
 
-                for (let j=0; j<parent.length; j++) {
+                for (var j=0; j<parent.length; j++) {
                     z(parent[i]).append(appends);
                     newNode = DomElement.removeDouble(appends, newNode);
                     if (j < parent.length - 1) appends = appends.cloneNode(true); // Clone
@@ -1250,7 +1267,7 @@
          * @returns {Zulu}
          */
         Zulu.prototype.dispatch = function() {
-            const args = arguments;
+            var args = arguments;
 
             this.each(function (node) {
                 eventSpace.dispatch(node, args);
@@ -1486,7 +1503,7 @@
          * @param {boolean} important css important clause.
          * @returns {Zulu}
          */
-        Zulu.prototype.__addCSS = function(property, values, important) {
+        Zulu.prototype._addCSS = function(property, values, important) {
             important = !(typeof important === 'undefined') ? important : false;
             property = typeof property.valueOf() === 'string' ? [property] : property;
             values = typeof values.valueOf() === 'string' ? [values] : values;
@@ -1494,14 +1511,14 @@
             if (!(property.length === values.length)) throw new Error('property array not equals values array length');
 
             this.each(function (node) {
-                let style = z(node).attr('style', undefined) || '';
+                var style = z(node).attr('style', undefined) || '';
 
-                for (let j=0; j<property.length; j++) {
+                for (var j=0; j<property.length; j++) {
                     if (!(style.indexOf(property[j]+":") === -1)) {
-                        const stylize = style.split(';');
+                        var stylize = style.split(';');
                         style = '';
 
-                        for (let k=0; k<stylize.length; k++) {
+                        for (var k=0; k<stylize.length; k++) {
                             while (!(stylize[k].indexOf(' ') === -1)) stylize[k] = stylize[k].replace(' ', '');
 
                             if (stylize[k].length === 0) continue;
@@ -1526,8 +1543,8 @@
          * @returns {Zulu}
          */
         Zulu.prototype.addCSS = function(values) {
-            for(const key in values)
-                this.__addCSS(key, values[key], false);
+            for(var key in values)
+                this._addCSS(key, values[key], false);
 
             return this;
         };
@@ -1537,22 +1554,22 @@
          * @returns {Zulu}
          */
         Zulu.prototype.removeCSS = function() {
-            const args = arguments;
+            var args = arguments;
 
             this.each(function (node) {
-                let style = z(node).attr('style', undefined) || '';
+                var style = z(node).attr('style', undefined) || '';
 
-                for (let j=0; j<args.length; j++) {
-                    if (!(style.indexOf(arguments[j]+":") === -1)) {
-                        const stylize = style.split(';');
+                for (var j=0; j<args.length; j++) {
+                    if (!(style.indexOf(args[j]+":") === -1)) {
+                        var stylize = style.split(';');
                         style = '';
 
-                        for (let k=0; k<stylize.length; k++) {
+                        for (var k=0; k<stylize.length; k++) {
                             while (!(stylize[k].indexOf(' ') === -1)) stylize[k] = stylize[k].replace(' ', '');
 
                             if (stylize[k].length === 0) continue;
                             if (!stylize[k].endsWith(';')) stylize[k] += ';';
-                            if (stylize[k].indexOf(arguments[j]+':') === -1) style += stylize[k];
+                            if (stylize[k].indexOf(args[j]+':') === -1) style += stylize[k];
                         }
                     }
                 }
@@ -1571,16 +1588,16 @@
         Zulu.prototype.filter = function() {
             if (arguments.length === 0) return this;
 
-            let factory = '',
+            var factory = '',
                 newNode = [];
 
-            for (let i=0; i<arguments.length; i++)
+            for (var i=0; i<arguments.length; i++)
                 factory += arguments[i] + (i < (arguments.length - 1) ? ',' : '')
 
-            let filterResult = DomElement.extract(document, factory);
+            var filterResult = DomElement.extract(document, factory);
 
             this.each(function (node) {
-                for (let j=0; j<filterResult.length; j++)
+                for (var j=0; j<filterResult.length; j++)
                     if (filterResult[j].isEqualNode(node)) {
                         newNode.push(node);
                         break;
@@ -1597,10 +1614,10 @@
         Zulu.prototype.find = function() {
             if (arguments.length === 0) return this;
 
-            let factory = '',
+            var factory = '',
                 newNode = [];
 
-            for (let i=0; i<arguments.length; i++)
+            for (var i=0; i<arguments.length; i++)
                 factory += arguments[i] + (i < arguments.length - 1 ? ',' : '');
 
             this.each(function (node) {
@@ -1639,7 +1656,7 @@
                 else node = node.node;
             }
 
-            for (let i=0; i<this.node.length; i++)
+            for (var i=0; i<this.node.length; i++)
                 if (this.node[i].isEqualNode(node)) return i;
 
             return -1;
@@ -1655,7 +1672,7 @@
         Zulu.prototype.eq = function(start, count) {
             if (!this.array) return this;
             else {
-                let newNode = [],
+                var newNode = [],
                     reverse = false,
                     i;
 
@@ -1711,22 +1728,22 @@
          * Get the jQuery object with node selected.
          * @returns {jQuery.fn.init|jQuery|HTMLElement}
          */
-        Zulu.prototype.query = function () {
-            if (window.$ || window.jQuery) return window.$(this.node);
-            else throw new Error("JQuery has requires");
+        Zulu.prototype.jquery = function () {
+            if (window.$) return window.$(this.node);
+            else if (window.jQuery) return window.jQuery(this.node);
+            else throw new Error("JQuery modules is required");
         };
 
         /**
          * Call function gives with all node selected.
+         * @param {Function} func
          * @returns {Zulu}
          */
         Zulu.prototype.each = function (func) {
-            if (typeof this.node === 'undefined') return this;
-            const node = this.array ? this.node : [this.node];
+            var node = this.array ? this.node : [this.node];
 
-            for (let i=0; i<node.length; i++)
-                if (node[i])
-                    func(node[i]);
+            for (var i=0; i<node.length; i++)
+                if (node[i]) func(node[i]);
 
             return this;
         };
@@ -1734,10 +1751,12 @@
         ////////////
         // Execution
 
-        if (typeof factory === 'undefined') throw new Error('zulu args requires');
+        if (typeof factory === 'undefined') throw new Error('Zulu constructor requires args');
         else if (factory.isZulu === this.isZulu) {
             this.node = factory.node;
             this.array = factory.array;
+
+            return this;
         }
         else if (typeof factory.valueOf() === 'object') {
             this.node = factory;
@@ -1746,15 +1765,16 @@
             return this;
         }
         else {
-            const querySet = DomElement.extract(document, factory);
+            var querySet = DomElement.extract(document, factory);
             return migrate(querySet);
         }
     }
 
-    window.zulu = window.z = function(factory) {
+    window.zulu = window.z = window.Z = window.Zulu = function(factory) {
         return new Zulu(factory);
     };
-    window.zuluTool = window.ux = new function FrozenSet() {
+
+    window.zuluTool = window.ux = window.Ux = window.ZuluTool = window.zt = window.Zt = new function FrozenSet() {
         this.prototype = FrozenSet.prototype;
 
         FrozenSet.prototype.isZulu = settingsSpace.type;
@@ -1769,13 +1789,13 @@
          * @param {boolean} textNode Define if we create an element or an text node. Default values has false.
          * @returns {Zulu}
          */
-        FrozenSet.prototype.add = function(nodeName, textNode) {
+        FrozenSet.prototype.create = function(nodeName, textNode) {
             textNode = typeof textNode === 'undefined' ? false : textNode;
-            const zulu = new Zulu('*');
+            var zulu = new Zulu('*');
 
             zulu.node = !textNode ? document.createElement(nodeName.toLowerCase()) : document.createTextNode(nodeName);
             zulu.array = false;
-    
+
             return zulu;
         }
     };

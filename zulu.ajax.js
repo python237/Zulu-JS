@@ -1,25 +1,18 @@
-/*!
-* Copyright (c) 2020-present, Comparo Group. All rights reserved.
-* Zulu JavaScript Library v1.0.0 - Ajax Tools
-*
-* Copyright Comparo Group and other contributors
-* Released under the MIT license
-*
-* @author Didier Tagne
-* @mail tagnedidier@gmail.com
+/**
+** HTTP request handling code using Ajax XMLHttpRequest
+**
+** @version 1.0.1
 */
-
-
 ;(function(fn, context) {
     "use strict";
 
     if (typeof fn === 'undefined' || !'factory' in fn || !'type' in fn.factory || !(fn.isZulu === fn.factory.type))
-        throw new Error("Zulu Toolkit requires");
+        throw new Error("Zulu library is required");
 
     // Check version
-    if (!fn.factory.requires('1.0.0')) throw new Error("zulu ajax extension requires V1.0.0");
+    if (!fn.factory.requires('1.0.1')) throw new Error("Ajax requires Zulu V1.0.1");
 
-    const xhrListener = {
+    var xhrListener = {
         /**
          * Launch manually callback or list callback define.
          *
@@ -28,8 +21,8 @@
          */
         launchCallback: function (callback, args) {
             if (typeof callback === 'object')
-                for (let i = 0; i < callback.length; i++) callback[i](args);
-            else callback(args);
+                for (var i = 0; i < callback.length; i++) setTimeout(callback[i], 0, args);
+            else setTimeout(callback, 0, args);
         },
 
         /**
@@ -41,10 +34,11 @@
         checkCallback: function (callback) {
             if (typeof callback === 'function') return callback;
             else if (typeof callback === 'object') {
-                for (let i = 0; i < callback.length; i++) this.checkCallback(callback[i]);
+                for (var i = 0; i < callback.length; i++) this.checkCallback(callback[i]);
+
                 return callback;
             }
-            else throw new Error("callback requires function or list functions");
+            else throw new Error("ajax callback requires function or list functions");
         }
     };
 
@@ -72,16 +66,16 @@
         this.requestHeaders = {};
         this.allowAllOrigin = false;
 
-        let isOldNavigator = false;
-        let running = false;
-        let data = undefined;
-        const $this = this;
+        var isOldNavigator = false;
+        var running = false;
+        var data = undefined;
+        var $this = this;
 
         ////////////////
         // Object Method
 
         Ajax.prototype.valueOf = {};
-        Ajax.prototype.isZulu = "Zulu XHR Object";
+        Ajax.prototype.isZulu = "Zulu Ajax Object";
 
         /**
          * Check if request operation has true or false in progress.
@@ -110,8 +104,9 @@
          * @returns {Ajax}
          */
         Ajax.prototype.setType = function(values, mimeType) {
-            this.type = values;
-            this.mimeType = mimeType;
+            if (typeof values !== "undefined") this.type = values;
+            if (typeof mimeType !== "undefined") this.mimeType = mimeType;
+
             return this;
         };
 
@@ -125,13 +120,39 @@
             this.timeout = time;
             return this;
         };
-        
+
         /*
          * Set the headers property to ajax request
          * @param {JSON} data The list of all headers property will be added.
         */
         Ajax.prototype.setRequestHeaders = function(data) {
-        	this.requestHeaders = data;
+            this.requestHeaders = data;
+            return this;
+        };
+
+        /*
+         * Push items into headers property to ajax request
+         * @param {string} key The http key
+         * @param {string} values The values for http key
+        */
+        Ajax.prototype.pushToRequestHeaders = function(key, values) {
+            if (typeof this.requestHeaders !== "undefined")
+                this.requestHeaders[key] = values;
+
+            else {
+                this.requestHeaders = {};
+                this.requestHeaders[key] = values;
+            }
+
+            return this;
+        };
+
+        /**
+         * Define if ajax request uses or not all domain
+         * @param {boolean} state Request status
+         */
+        Ajax.prototype.setAllowAllOrigin = function(state) {
+            this.allowAllOrigin = state;
         };
 
         /**
@@ -140,7 +161,7 @@
          * @param {{}} serverData The server data.
          * @returns {Ajax}
          */
-        Ajax.prototype.start = function(serverData) {
+        Ajax.prototype.send = function(serverData) {
             if (typeof serverData.method === 'undefined') throw new Error("method request requires");
 
             this.responseCallback = xhrListener.checkCallback(serverData.response || this.responseCallback);
@@ -160,55 +181,37 @@
             this.requestHeaders = serverData.headers || this.requestHeaders;
             this.allowAllOrigin = serverData.allowAllOrigin || this.allowAllOrigin;
 
-            const authenticate = serverData.authenticate || false;
+            var authenticate = serverData.authenticate || false;
 
             if (isOldNavigator) xhrListener.launchCallback(this.oldNavigatorCallback);
             else if (running) xhrListener.launchCallback(this.collisionCallback, serverData);  // Other operation in progress.
             else {
-                let i;
+                var i;
                 data = "" + (serverData.data || '');
 
                 this.xhr.open(serverData.method, this.url, true);
                 this.xhr.withCredentials = this.credentials;
                 this.xhr.overrideMimeType(this.mimeType);
                 this.xhr.timeout = this.timeout;
-                
+                this.xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+
                 for (i in this.requestHeaders) this.xhr.setRequestHeader(i, this.requestHeaders[i]);
                 // Allow all origin
-                if (this.allowAllOrigin) this.xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+                if (this.allowAllOrigin)
+                    this.xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
 
                 if (serverData.method === "POST") {
-                    const field = serverData.data || [];
-                    let dgram = null;
+                    var field = serverData.data || [];
+                    var dgram = null;
 
                     if (!(typeof field === 'undefined') && typeof field != null) {
                         if (field.isZulu === fn.factory.type) dgram = new FormData(field.node);
                         else {
                             dgram = new FormData();
 
-                            for(i = 0; i<field.length; i++) {
-                                if (!(typeof field[i] === 'object')) throw new Error("data array error");
-                                dgram.append(field[i][0], field[i][1]);
-                            }
+                            for (var i in field) dgram.append(i, field[i]);
                         }
                     }
-
-                    if (authenticate) {
-                        const auth = context("input[name=csrfmiddlewaretoken][type=hidden]");
-
-                        if (!(typeof auth === 'undefined')) {
-                            if (dgram != null) dgram.append(
-                                "csrfmiddlewaretoken", auth.take(0).attr('value', undefined) || ''
-                            );
-                            else {
-                                dgram = new FormData();
-                                dgram.append(
-                                    "csrfmiddlewaretoken", auth.take(0).attr('value', undefined) || ''
-                                );
-                            }
-                        }
-                    }
-
                     this.xhr.send(dgram);
                 }
                 else this.xhr.send(null);
@@ -225,7 +228,7 @@
          */
         Ajax.prototype.post = function(data) {
             data.method = "POST";
-            return this.start(data);
+            return this.send(data);
         };
 
         /**
@@ -236,7 +239,7 @@
          */
         Ajax.prototype.get = function(data) {
             data.method = "GET";
-            return this.start(data);
+            return this.send(data);
         };
 
         /**
@@ -247,7 +250,7 @@
             this.xhr.abort();
             return this;
         };
-        
+
         Ajax.prototype.setResponseCallback = function(callback) {
             this.responseCallback = xhrListener.checkCallback(callback);
             return this;
@@ -303,14 +306,14 @@
         else if (window.ActiveXObject)
             try {
                 this.xhr = new ActiveXObject("Msxml2.XMLHTTP");
-                if (typeof this.xhr === 'undefined' || this.xhr === null) throw new Error(); 
+                if (typeof this.xhr === 'undefined' || this.xhr === null) throw new Error();
             }
             catch (e) {
-                try { 
+                try {
                     this.xhr = new ActiveXObject("Microsoft.XMLHTTP");
                 }
                 catch(e) {
-                   isOldNavigator = true;
+                    isOldNavigator = true;
                 }
             }
 
@@ -344,16 +347,18 @@
             this.xhr.onreadystatechange = function() {
                 if ($this.xhr.readyState === 4) {
                     if ($this.xhr.status === 200) {
-                        let response = undefined;
+                        var response = '';
 
                         if ($this.type === 'xml') response = $this.xhr.responseXML;
                         else if ($this.type === 'json') response = JSON.parse($this.xhr.responseText);
                         else response = $this.xhr.responseText;
 
                         xhrListener.launchCallback($this.responseCallback, response);
-                    } 
-                    else if (!($this.xhr.status === 301) && !($this.xhr.status === 302))
-                        xhrListener.launchCallback($this.serverErrorCallback, $this.xhr.status);
+                    }
+                    else if (!($this.xhr.status === 301) && !($this.xhr.status === 302)) {
+                        if ($this.xhr.status >= 400 && $this.xhr.status <= 600)
+                            xhrListener.launchCallback($this.serverErrorCallback, $this.xhr.status);
+                    }
 
                     xhrListener.launchCallback($this.requestEndCallback);
                     running = false;
@@ -363,7 +368,7 @@
     }
 
     fn.prototype.xhr = function(url) {
-        if (typeof url === 'undefined' || !(typeof url.valueOf() === 'string')) throw new Error("url requires");
+        if (typeof url === 'undefined' || !(typeof url.valueOf() === 'string')) throw new Error("url required");
         return new Ajax(url);
     };
     fn.factory.extensions.xhr = Ajax;

@@ -1,2 +1,3 @@
 # Zulu-JS
-Zulu-JS est une bibliothèque JavaScript rapide, petite et contenant quelques fonctionnalités intérressante pour ses débuts. Il simplifie considérablement la traversée et la manipulation de documents HTML, la gestion des événements, l'animation et Ajax grâce à une API facile à utiliser qui fonctionne sur une multitude de navigateurs. Avec une combinaison de polyvalence et d'extensibilité, Zulu-JS ce veut comme son nom l'indique, une bibliothèque africaine vaste maintenu et enricchie par des volontaires du continent.
+---
+Zulu-JS is a fast mini JavaScript library with some interesting features for beginners. It greatly simplifies HTML document traversal and manipulation, event handling, animation and Ajax, thanks to an easy-to-use API that works on a multitude of browsers. With a combination of versatility and extensibility.
